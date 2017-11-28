@@ -1,0 +1,90 @@
+#!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          xvfb
+# Required-Start:    
+# Required-Stop:     
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts xvfb
+# Description:       Starts X Virtual Framebuffer server
+### END INIT INFO
+
+DESC="Starts xvfb"
+DAEMON=/usr/bin/Xvfb
+NAME=xvfb
+DAEMON_OPTIONS=":10 -ac"
+PIDFILE=/tmp/$NAME.pid
+
+case "$1" in
+  start)
+    if [ -f "$PIDFILE" ];then
+      echo "${NAME} Service already running" >&2
+      exit 1
+    fi
+    printf "%-50s" "Starting $NAME..."
+    PID=`$DAEMON $DAEMON_OPTIONS > /dev/null 2>&1 & echo $!`
+    if [ -z $PID ]; then
+      printf "%s\n" "Fail"
+    else
+      echo $PID > $PIDFILE
+      printf "%s\n" "Ok"
+    fi
+    disown -ar
+    ;;
+  stop)
+    printf "%-50s" "Stopping $NAME"
+    if [ -f $PIDFILE ]; then
+      PID=`cat $PIDFILE`
+      if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+        printf "%s\n" "Process already dead."
+        rm -f $PIDFILE
+        exit 0
+      fi
+      kill $PID
+      sleep 0.5
+      if [ -n "`ps axf | grep ${PID} | grep -v grep`" ]; then
+        printf "%s\n" "Fail"
+        printf "%-50s" "Stopping (kill -9) $NAME"
+        kill -9 $PID
+        sleep 0.5
+        if [ -n "`ps axf | grep ${PID} | grep -v grep`" ]; then
+          printf "%s\n" "Fail"
+          echo "$NAME still running. Giving up..."
+          exit 1
+        else
+          printf "%s\n" "Ok"
+        fi
+      else
+        printf "%s\n" "Ok"
+      fi
+      rm -f $PIDFILE
+    else
+      echo "pidfile not found"
+    fi
+    ;;
+  restart|reload)
+    $0 stop
+    $0 start
+    RETVAL=$?
+    ;;
+  status)
+    printf "%-50s" "Checking $NAME..."
+    if [ -f $PIDFILE ]; then
+      PID=`cat $PIDFILE`
+      if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+        printf "%s\n" "Process dead but pidfile exists"
+      else
+        echo "Running"
+      fi
+    else
+      printf "%s\n" "Service not running"
+    fi
+    RETVAL=$?
+    ;;
+  *)
+    echo $"Usage: $0 (start|stop|restart|reload|status)"
+    exit 1
+esac
+
+exit $RETVAL
