@@ -1,4 +1,3 @@
-# firefox:v0.7
 FROM ubuntu:17.10
 ADD xvfb.init /etc/init.d/xvfb
 RUN echo RUN \
@@ -9,6 +8,7 @@ RUN echo RUN \
       dbus \
       firefox \
       git \
+      inetutils-ping \
       net-tools \
       openjdk-8-jdk-headless \
       vim \
