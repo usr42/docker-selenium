@@ -9,6 +9,7 @@ RUN echo RUN \
       dbus \
       firefox \
       git \
+      inetutils-ping \
       openjdk-8-jdk-headless \
       vim \
       xvfb \
