@@ -5,5 +5,5 @@ RUN echo RUN \
       inetutils-ping \
       net-tools \
       vim \
-    && rm -rf /var/lib/apt/lists/* \
-CMD (bash)
+    && rm -rf /var/lib/apt/lists/*
+CMD bash
